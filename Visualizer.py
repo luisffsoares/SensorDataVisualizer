@@ -3,60 +3,56 @@
 """
 Visualizador dos dados do sensor de vibrações
 
+Método:
+    1 - abrir arquivo do datalogger
+    2 - ler última linha do datalogger
+    3 - tratar os dados
+    4 - gerar freqs
+    5 - plotar gráfico
+
+
 @author: luisffs
 """
-    
-#import datetime
-#import csv
-import paho.mqtt.client as mqtt
-import pandas as pd
-import numpy as np
+import csv
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from matplotlib import style
 
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-    # Subscribing in on_connect() means that if we lose the connection and
-    # reconnect then subscriptions will be renewed.
-    #client.subscribe("/Sensor1/#")
-    client.subscribe("/Sensor1/Mic")
-    #client.subscribe("/Sensor1/Accel")
+style.use('fivethirtyeight')
 
-# Evento: recebimento de mensagem servidor
-def on_message(t1, userdata, msg):
-    #print(msg.topic)    
-    msg_payload = str(msg.payload)#.split(';')
-    msg_list = msg_payload.split(';')
-    msg_list = msg_list[2:]
-    msg_list = msg_list[:-1]
-    lenL = len(msg_list)
-    #print(lenL)
-    #print(float(msg_list[52]))
-    #print(msg_list) 
+fig = plt.figure()
+ax1 = fig.add_subplot(1,1,1)
+
+def animate(i):
     
-    dataFloat =  [float(i) for i in msg_list]
-    
-    for j in range(0 , lenL):
+    with open('Mic.txt','r') as csvfile:
+        plots = csv.reader(csvfile, delimiter='\n')
+        lista = list(plots)
+        a = len(lista)
         
-        data_mic[j,0] = dataFloat
+        ult_lin = lista[a-1]
+        stringFFT = (ult_lin[0])
+        listFFT = stringFFT.split(";")
+        listFFT = listFFT[2:]
+        global dataFFT
+        global horaFFT
+        dataFFT = listFFT[len(listFFT)-1]
+        horaFFT = listFFT[len(listFFT)-2]
+        listFFT = listFFT[:-3]
+        listFFT = [float(i) for i in listFFT]
     
-        
-    #print((dataFloat))
+        ax1.clear()
+        ax1.plot(listFFT)
+    
+ani = animation.FuncAnimation(fig, animate, interval=1000)
+plt.show()
+
+
     
     
-
-
-
-client = mqtt.Client("Viz1")#must be unique
-client.username_pw_set("vizulizerOne", "")
-client.on_connect = on_connect
-client.on_message = on_message
-
-
-#client.connect('test.mosquitto.org', 1883, 120) #Just for testing purposes
-
-# Blocking call that processes network traffic, dispatches callbacks and
-# handles reconnecting.
-# Other loop*() functions are available that give a threaded interface and a
-# manual interface.
-client.loop_forever()
+    
+#plt.plot(listFFT)  
+#print(listFFT)    
+print(dataFFT)
+print(horaFFT)
+    
