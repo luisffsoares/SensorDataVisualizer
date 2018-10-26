@@ -2,15 +2,13 @@
 # -*- coding: utf-8 -*-
 """
 Visualizador dos dados do sensor de vibrações
-
 Método:
-    1 - abrir arquivo do datalogger
-    2 - ler última linha do datalogger
-    3 - tratar os dados
-    4 - gerar freqs
-    5 - plotar gráfico
-
-
+    1 - abrir arquivo do datalogger ok
+    2 - ler última linha do datalogger ok
+    3 - tratar os dados ok
+    4 - gerar freqs ok
+    5 - plotar gráfico ok
+    6 - infos
 @author: luisffs
 """
 import csv
@@ -40,19 +38,29 @@ def animate(i):
         horaFFT = listFFT[len(listFFT)-2]
         listFFT = listFFT[:-3]
         listFFT = [float(i) for i in listFFT]
-    
+        listFreq = []
+        #Lista das freqs
+        for i in range (0, len(listFFT)):
+            #i * 1.0 * samplingFrequency) / samples
+            listFreq.append((i+3)*1*5000/1024)
+        
+            
+        
         ax1.clear()
-        ax1.plot(listFFT)
+        plt.xlabel('Frequência (Hz)')
+        plt.ylabel('Amplitude')
+        plt.title('Dados Mic')    
+        #plt.tight_layout()
+        plt.subplots_adjust(bottom=.15, left=.17)
+        ax1.annotate(horaFFT+ ' em ' +dataFFT , xy=(6.28, 1), xytext=(1200, 46000))
+        ax1.set_ylim(0,50000)
+        ax1.plot(listFreq,listFFT, linewidth=1.0)
     
-ani = animation.FuncAnimation(fig, animate, interval=1000)
+ani = animation.FuncAnimation(fig, animate, interval=100)
+
 plt.show()
 
 
     
     
-    
-#plt.plot(listFFT)  
-#print(listFFT)    
-print(dataFFT)
-print(horaFFT)
-    
+
